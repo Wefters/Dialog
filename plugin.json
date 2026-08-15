@@ -1,0 +1,10 @@
+{
+  "name": "dialog",
+  "permissions": {
+    "android": [],
+    "ios": {}
+  },
+  "methods": ["alert", "confirm", "prompt", "toast"],
+  "hooks": [],
+  "events": []
+}
