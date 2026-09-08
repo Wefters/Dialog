@@ -1,196 +1,134 @@
 # @wefterjs/dialog
 
-Official Wefter plugin for native alert, confirm, prompt, and toast dialogs on Android & iOS.  
-No permissions. No hardware. Pure UI.
-
----
+Official Wefter plugin for native alert, confirm, prompt, and toast dialogs on Android and iOS.
 
 ## Features
 
-- 🔔 **Alert** — Native blocking alert with a single dismiss button.
-- ✅ **Confirm** — OK / Cancel dialog that resolves with `{ value: boolean }`.
-- ✏️ **Prompt** — Input dialog that resolves with the user's text (or `cancelled: true`).
-- 🍞 **Toast** — Lightweight non-blocking notification that auto-dismisses.
+- Native modal alerts with customizable dismiss buttons.
+- Binary confirm dialogs returning boolean results.
+- Single-line prompt dialogs with configurable keyboard input types.
+- Lightweight auto-dismissing toast notifications with positioning options.
+- Zero runtime permissions required.
 
----
+## Installation and setup
 
-## Platform implementation
-
-| Method    | Android                              | iOS                                            |
-|-----------|--------------------------------------|------------------------------------------------|
-| `alert`   | `AlertDialog.Builder`                | `UIAlertController` (`.alert`)                 |
-| `confirm` | `AlertDialog.Builder`                | `UIAlertController` (`.alert`)                 |
-| `prompt`  | `AlertDialog.Builder` + `EditText`   | `UIAlertController` + `addTextField`           |
-| `toast`   | `Toast.makeText()`                   | Custom `UILabel` overlay with fade animations  |
-
-No Gradle or CocoaPods dependencies required.
-
----
-
-## Installation
+Install the plugin package in your Wefter application:
 
 ```bash
 wefter add @wefterjs/dialog
 wefter sync
 ```
 
----
+## JavaScript API reference
 
-## Permissions
-
-None. Dialog and toast APIs are pure UI — they require no runtime permissions on either platform.
-
----
-
-## JavaScript API Reference
+Import `Dialog` from `@wefterjs/dialog`:
 
 ```ts
 import { Dialog } from "@wefterjs/dialog";
 ```
 
-### `Dialog.alert(options)`
+### Alert dialog
 
-Shows a native alert with a single dismiss button. Resolves when the user taps it.
+Displays a modal dialog with a single button:
 
 ```ts
-interface AlertOptions {
-  title?: string;       // Bold title above the message
-  message: string;      // Body text
-  buttonText?: string;  // Dismiss button label (default: "OK")
-}
-
-await Dialog.alert({ title: "Done", message: "Your file was saved." });
-// → { value: true }
+await Dialog.alert({
+  title: "Notice",
+  message: "Your settings have been saved.",
+  buttonText: "OK", // Optional, defaults to "OK"
+});
 ```
 
----
+Resolves with `{ value: true }` when the user dismisses the dialog.
 
-### `Dialog.confirm(options)`
+### Confirm dialog
 
-Shows a native two-button confirm dialog. Resolves with `{ value: true }` (OK) or `{ value: false }` (Cancel).
-
-```ts
-interface ConfirmOptions {
-  title?: string;
-  message: string;
-  okText?: string;      // Default: "OK"
-  cancelText?: string;  // Default: "Cancel"
-}
-
-const { value } = await Dialog.confirm({ message: "Delete this item?" });
-if (value) {
-  // user tapped OK
-}
-```
-
----
-
-### `Dialog.prompt(options)`
-
-Shows a native text-input dialog. Resolves with the user's typed value or `cancelled: true` if dismissed.
+Displays a two-button dialog for confirmation:
 
 ```ts
-type InputType = "text" | "email" | "password" | "number" | "url" | "tel";
-
-interface PromptOptions {
-  title?: string;
-  message: string;
-  okText?: string;       // Default: "OK"
-  cancelText?: string;   // Default: "Cancel"
-  placeholder?: string;  // Ghost text in the field
-  inputType?: InputType; // Keyboard / input mode (default: "text")
-  defaultValue?: string; // Pre-filled text
-}
-
-interface PromptResult {
-  cancelled: boolean;
-  value: string;         // "" when cancelled
-}
-
-const { cancelled, value } = await Dialog.prompt({
-  message: "Enter your username",
-  placeholder: "e.g. johndoe",
+const { value } = await Dialog.confirm({
+  title: "Delete item",
+  message: "Are you sure you want to delete this file?",
+  okText: "Delete",   // Optional, defaults to "OK"
+  cancelText: "Cancel", // Optional, defaults to "Cancel"
 });
 
-if (!cancelled) {
-  console.log("Username:", value);
+if (value) {
+  console.log("User confirmed deletion");
+} else {
+  console.log("User cancelled");
 }
 ```
 
----
+Resolves with `{ value: true }` if the positive button was tapped, and `{ value: false }` if cancelled.
 
-### `Dialog.toast(options)`
+### Prompt dialog
 
-Shows a brief, non-blocking toast notification that disappears automatically.
+Displays a modal input dialog to collect user text:
 
 ```ts
-type ToastDuration = "short" | "long" | number; // number = ms (Android) / s (iOS, normalised)
-type ToastPosition = "top" | "center" | "bottom";
+const result = await Dialog.prompt({
+  title: "Update profile",
+  message: "Enter your contact email address:",
+  placeholder: "name@example.com",
+  defaultValue: "current@example.com",
+  inputType: "email", // "text", "email", "password", "number", "url", or "tel"
+  okText: "Save",
+  cancelText: "Cancel",
+});
 
-interface ToastOptions {
-  text: string;
-  duration?: ToastDuration;  // Default: "short" (≈ 2 s)
-  position?: ToastPosition;  // Default: "bottom"
+if (!result.cancelled) {
+  console.log("Entered email:", result.value);
+} else {
+  console.log("Prompt dismissed by user");
 }
-
-await Dialog.toast({ text: "Changes saved!", duration: "short", position: "bottom" });
-// → { shown: true }
 ```
 
-> **Note**: `toast` resolves immediately after the toast is shown, not after it auto-dismisses — consistent with Flutter's `ScaffoldMessenger.showSnackBar`.
+### Toast notification
 
----
-
-## Complete Usage Example
+Displays a non-blocking notification that auto-dismisses:
 
 ```ts
-import { Dialog } from "@wefterjs/dialog";
-
-export async function deleteAccount() {
-  // 1. Confirm intent
-  const { value: confirmed } = await Dialog.confirm({
-    title: "Delete account",
-    message: "This action is permanent and cannot be undone.",
-    okText: "Delete",
-    cancelText: "Keep account",
-  });
-
-  if (!confirmed) return;
-
-  // 2. Collect reason via prompt
-  const { cancelled, value: reason } = await Dialog.prompt({
-    title: "One last thing",
-    message: "Why are you leaving? (optional)",
-    placeholder: "Your reason",
-  });
-
-  if (cancelled) return;
-
-  // 3. Perform deletion … then confirm with toast
-  await Dialog.toast({ text: "Account deleted.", duration: "long" });
-}
+await Dialog.toast({
+  text: "Copied to clipboard",
+  duration: "short", // "short", "long", or milliseconds number
+  position: "bottom", // "top", "center", or "bottom"
+});
 ```
 
----
+The toast call resolves immediately once the notification is displayed on screen, rather than waiting for dismissal.
 
-## Error Handling
+## Error handling
 
-Errors surfaced from the native layer are thrown as `WefterBridgeError`:
+If invalid options are provided (such as an empty toast string), the call rejects with a `WefterBridgeError`:
 
 ```ts
 import { WefterBridgeError } from "@wefterjs/core";
 
 try {
-  await Dialog.toast({ text: "" }); // empty text → INVALID_TEXT
-} catch (err) {
-  if (err instanceof WefterBridgeError) {
-    console.error(err.code, err.message); // "INVALID_TEXT" "toast text must not be empty"
+  await Dialog.toast({ text: "" });
+} catch (error) {
+  if (error instanceof WefterBridgeError) {
+    console.error("Error code:", error.code);       // "INVALID_TEXT"
+    console.error("Error message:", error.message);
   }
 }
 ```
 
-### Error codes
+## Platform implementation notes
 
-| Code           | Method  | Cause                            |
-|----------------|---------|----------------------------------|
-| `INVALID_TEXT` | `toast` | `text` is blank or empty string  |
+### Android
+
+- Dialogs (`alert`, `confirm`, `prompt`) use `androidx.appcompat.app.AlertDialog.Builder`.
+- The `prompt` input uses an `AppCompatEditText` configured with appropriate `InputType` flags matching `inputType`.
+- `toast` uses standard `android.widget.Toast`.
+
+### iOS
+
+- Dialogs (`alert`, `confirm`, `prompt`) use `UIAlertController` presented with `.alert` style on the root view controller.
+- `prompt` adds a `UITextField` configured with corresponding `UIKeyboardType` and `isSecureTextEntry` properties.
+- `toast` creates a temporary `UILabel` overlay with animated alpha transitions.
+
+## License
+
+[MIT](LICENSE) © 2026 Sandip Ghimire
