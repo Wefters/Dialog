@@ -49,7 +49,7 @@ Displays a two-button dialog for confirmation:
 const { value } = await Dialog.confirm({
   title: "Delete item",
   message: "Are you sure you want to delete this file?",
-  okText: "Delete",   // Optional, defaults to "OK"
+  okText: "Delete", // Optional, defaults to "OK"
   cancelText: "Cancel", // Optional, defaults to "Cancel"
 });
 
@@ -109,7 +109,7 @@ try {
   await Dialog.toast({ text: "" });
 } catch (error) {
   if (error instanceof WefterBridgeError) {
-    console.error("Error code:", error.code);       // "INVALID_TEXT"
+    console.error("Error code:", error.code); // "INVALID_TEXT"
     console.error("Error message:", error.message);
   }
 }

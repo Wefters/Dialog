@@ -9,12 +9,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import org.json.JSONObject
 
+/** Native alerts, confirmations and prompts with `AlertDialog`, and toasts with `Toast`. */
 class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
         WefterPlugin(context, dispatcher) {
 
     private val activity: FragmentActivity
         get() = context as FragmentActivity
 
+    /** Shows an alert with one button and resolves when it is dismissed. */
     @WefterMethod
     fun alert(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val title = payload.optString("title", "").takeIf { it.isNotBlank() }
@@ -36,6 +38,7 @@ class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
         }
     }
 
+    /** Shows OK and Cancel buttons and resolves with the user's choice. */
     @WefterMethod
     fun confirm(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val title = payload.optString("title", "").takeIf { it.isNotBlank() }
@@ -62,6 +65,7 @@ class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
         }
     }
 
+    /** Shows a text field and resolves with the text, or with `cancelled` set. */
     @WefterMethod
     fun prompt(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val title = payload.optString("title", "").takeIf { it.isNotBlank() }
@@ -121,6 +125,10 @@ class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
         }
     }
 
+    /**
+     * Shows a toast. Android only has short and long toasts: numbers up to 2000 (milliseconds) are short,
+     * larger ones long.
+     */
     @WefterMethod
     fun toast(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val text = payload.optString("text", "")

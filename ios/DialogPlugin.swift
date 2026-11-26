@@ -1,7 +1,9 @@
 import UIKit
 
+/// Native alerts, confirmations and prompts with `UIAlertController`, and a lightweight toast view.
 final class DialogPlugin: WefterPlugin {
 
+    /// Shows an alert with one button and resolves when it is dismissed.
     // @WefterMethod
     func alert(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let title      = payload["title"]      as? String
@@ -18,6 +20,7 @@ final class DialogPlugin: WefterPlugin {
         }
     }
 
+    /// Shows OK and Cancel buttons and resolves with the user's choice.
     // @WefterMethod
     func confirm(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let title      = payload["title"]      as? String
@@ -38,6 +41,7 @@ final class DialogPlugin: WefterPlugin {
         }
     }
 
+    /// Shows a text field and resolves with the text, or with `cancelled` set.
     // @WefterMethod
     func prompt(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let title        = payload["title"]        as? String
@@ -76,6 +80,8 @@ final class DialogPlugin: WefterPlugin {
         }
     }
 
+    /// Shows a toast for the requested duration. Numbers up to 60 are seconds; larger numbers are
+    /// milliseconds.
     // @WefterMethod
     func toast(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let text = payload["text"] as? String ?? ""
@@ -104,11 +110,13 @@ final class DialogPlugin: WefterPlugin {
         }
     }
 
+    /// Presents a dialog on the topmost view controller.
     private func present(_ controller: UIAlertController) {
         guard let root = DialogPlugin.topViewController() else { return }
         root.present(controller, animated: true)
     }
 
+    /// Shows a rounded label over the key window that fades out after `durationSeconds`.
     private func showToast(text: String, durationSeconds: Double, position: String) {
         guard let window = DialogPlugin.keyWindow() else { return }
 
@@ -154,6 +162,7 @@ final class DialogPlugin: WefterPlugin {
         }
     }
 
+    /// Keyboard type for a prompt input type.
     private static func keyboardType(for inputType: String) -> UIKeyboardType {
         switch inputType {
         case "email":    return .emailAddress
@@ -164,6 +173,7 @@ final class DialogPlugin: WefterPlugin {
         }
     }
 
+    /// The key window of the foreground scene.
     private static func keyWindow() -> UIWindow? {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
@@ -171,6 +181,7 @@ final class DialogPlugin: WefterPlugin {
             .last { $0.isKeyWindow }
     }
 
+    /// The view controller currently on top, following presented, navigation and tab controllers.
     private static func topViewController(base: UIViewController? = nil) -> UIViewController? {
         let root = base ?? keyWindow()?.rootViewController
         if let nav = root as? UINavigationController {
