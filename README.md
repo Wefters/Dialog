@@ -115,6 +115,10 @@ try {
 }
 ```
 
+## Text
+
+Buttons you don't label (`buttonText`, `okText`, `cancelText`) show the shell's OK and Cancel in the user's language (`dialog.ok`, `dialog.cancel`).
+
 ## Platform implementation notes
 
 ### Android

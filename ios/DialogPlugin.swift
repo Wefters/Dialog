@@ -8,7 +8,7 @@ final class DialogPlugin: WefterPlugin {
     func alert(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let title      = payload["title"]      as? String
         let message    = payload["message"]    as? String ?? ""
-        let buttonText = (payload["buttonText"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "OK"
+        let buttonText = (payload["buttonText"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? WefterText.get("dialog.ok")
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -25,8 +25,8 @@ final class DialogPlugin: WefterPlugin {
     func confirm(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let title      = payload["title"]      as? String
         let message    = payload["message"]    as? String ?? ""
-        let okText     = (payload["okText"]     as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "OK"
-        let cancelText = (payload["cancelText"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "Cancel"
+        let okText     = (payload["okText"]     as? String).flatMap { $0.isEmpty ? nil : $0 } ?? WefterText.get("dialog.ok")
+        let cancelText = (payload["cancelText"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? WefterText.get("dialog.cancel")
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -46,8 +46,8 @@ final class DialogPlugin: WefterPlugin {
     func prompt(payload: [String: Any], callback: @escaping (Result<Any, Error>) -> Void) throws {
         let title        = payload["title"]        as? String
         let message      = payload["message"]      as? String ?? ""
-        let okText       = (payload["okText"]       as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "OK"
-        let cancelText   = (payload["cancelText"]   as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "Cancel"
+        let okText       = (payload["okText"]       as? String).flatMap { $0.isEmpty ? nil : $0 } ?? WefterText.get("dialog.ok")
+        let cancelText   = (payload["cancelText"]   as? String).flatMap { $0.isEmpty ? nil : $0 } ?? WefterText.get("dialog.cancel")
         let placeholder  = payload["placeholder"]  as? String ?? ""
         let inputTypeStr = payload["inputType"]     as? String ?? "text"
         let defaultValue = payload["defaultValue"]  as? String ?? ""

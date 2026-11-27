@@ -21,7 +21,7 @@ class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
     fun alert(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val title = payload.optString("title", "").takeIf { it.isNotBlank() }
         val message = payload.optString("message", "")
-        val buttonText = payload.optString("buttonText", "OK").ifBlank { "OK" }
+        val buttonText = payload.optString("buttonText").ifBlank { WefterText.get(context, "dialog.ok") }
 
         activity.runOnUiThread {
             val builder =
@@ -43,8 +43,8 @@ class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
     fun confirm(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val title = payload.optString("title", "").takeIf { it.isNotBlank() }
         val message = payload.optString("message", "")
-        val okText = payload.optString("okText", "OK").ifBlank { "OK" }
-        val cancelText = payload.optString("cancelText", "Cancel").ifBlank { "Cancel" }
+        val okText = payload.optString("okText").ifBlank { WefterText.get(context, "dialog.ok") }
+        val cancelText = payload.optString("cancelText").ifBlank { WefterText.get(context, "dialog.cancel") }
 
         activity.runOnUiThread {
             val builder =
@@ -70,8 +70,8 @@ class DialogPlugin(context: Context, dispatcher: BridgeDispatcher) :
     fun prompt(payload: JSONObject, callback: (Result<Any>) -> Unit) {
         val title = payload.optString("title", "").takeIf { it.isNotBlank() }
         val message = payload.optString("message", "")
-        val okText = payload.optString("okText", "OK").ifBlank { "OK" }
-        val cancelText = payload.optString("cancelText", "Cancel").ifBlank { "Cancel" }
+        val okText = payload.optString("okText").ifBlank { WefterText.get(context, "dialog.ok") }
+        val cancelText = payload.optString("cancelText").ifBlank { WefterText.get(context, "dialog.cancel") }
         val placeholder = payload.optString("placeholder", "")
         val inputTypeStr = payload.optString("inputType", "text")
         val defaultValue = payload.optString("defaultValue", "")
